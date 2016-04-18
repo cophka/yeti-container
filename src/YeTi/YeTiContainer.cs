@@ -21,6 +21,11 @@ namespace YeTi
 
             var ctors = actual_type.GetConstructors();
 
+            if (ctors.Length > 1)
+            {
+                throw new ComponentHasMultipleConstructorsException(actual_type);
+            }
+
             var ctor = ctors.First();
 
             IEnumerable<Type> dependency_types = ctor.GetParameters()
@@ -37,7 +42,24 @@ namespace YeTi
 
         public T Resolve<T>()
         {
-            return (T) this.Resolve(typeof(T));
+            return (T)this.Resolve(typeof(T));
+        }
+    }
+
+    public abstract class CompositionException : Exception
+    {
+        public readonly Type Type;
+
+        public CompositionException(Type type)
+        {
+            Type = type;
+        }
+    }
+
+    public class ComponentHasMultipleConstructorsException : CompositionException
+    {
+        public ComponentHasMultipleConstructorsException(Type type) : base(type)
+        {
         }
     }
 }
